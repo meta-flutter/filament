@@ -110,7 +110,9 @@ Driver* PlatformEGL::createDriver(void* sharedContext) noexcept {
             EGL_BLUE_SIZE,   8,                                 //  6
             EGL_ALPHA_SIZE,  0,                                 //  8 : reserved to set ALPHA_SIZE below
             EGL_DEPTH_SIZE, 24,                                 // 10
+#if defined(__ANDROID__)
             EGL_RECORDABLE_ANDROID, 1,                          // 12
+#endif
             EGL_NONE                                            // 14
     };
 
@@ -182,15 +184,18 @@ Driver* PlatformEGL::createDriver(void* sharedContext) noexcept {
         // when creating the context, otherwise, we must always pick a transparent config.
         eglConfig = mEGLConfig = mEGLTransparentConfig;
     }
+    else {
+        eglConfig = mEGLConfig;
+    }
 
     // the pbuffer dummy surface is always created with a transparent surface because
     // either we have EGL_KHR_no_config_context and it doesn't matter, or we don't and
     // we must use a transparent surface
     mEGLDummySurface = eglCreatePbufferSurface(mEGLDisplay, mEGLTransparentConfig, pbufferAttribs);
-    if (mEGLDummySurface == EGL_NO_SURFACE) {
-        logEglError("eglCreatePbufferSurface");
-        goto error;
-    }
+//    if (mEGLDummySurface == EGL_NO_SURFACE) {
+//        logEglError("eglCreatePbufferSurface");
+//        goto error;
+//    }
 
     mEGLContext = eglCreateContext(mEGLDisplay, eglConfig, (EGLContext)sharedContext, contextAttribs);
     if (mEGLContext == EGL_NO_CONTEXT && sharedContext &&

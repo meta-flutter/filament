@@ -17,78 +17,26 @@
 #ifndef TNT_FILAMENT_DRIVER_OPENGL_PLATFORM_EGL_WAYLAND_H
 #define TNT_FILAMENT_DRIVER_OPENGL_PLATFORM_EGL_WAYLAND_H
 
-#include <cstdint>
-
 #include <wayland-egl.h>
 
-#include <EGL/egl.h>
-#include <EGL/eglext.h>
-
-#include <backend/DriverEnums.h>
-
-#include "private/backend/OpenGLPlatform.h"
+#include "PlatformEGL.h"
 
 namespace filament {
 
-class PlatformEGLWayland : public backend::OpenGLPlatform {
+class PlatformEGLWayland final : public PlatformEGL {
 public:
 
     PlatformEGLWayland() noexcept;
+    ~PlatformEGLWayland() noexcept override;
 
-    backend::Driver* createDriver(void* sharedContext) noexcept override;
     void terminate() noexcept override;
 
-    SwapChain* createSwapChain(void* nativewindow, uint64_t& flags) noexcept override;
-    SwapChain* createSwapChain(uint32_t width, uint32_t height, uint64_t& flags) noexcept override;
-    void destroySwapChain(SwapChain* swapChain) noexcept override;
-    void makeCurrent(SwapChain* drawSwapChain, SwapChain* readSwapChain) noexcept override;
-    void commit(SwapChain* swapChain) noexcept override;
+    backend::Driver* createDriver(void* sharedContext) noexcept override;
 
-    bool canCreateFence() noexcept override { return true; }
-    Fence* createFence() noexcept override;
-    void destroyFence(Fence* fence) noexcept override;
-    backend::FenceStatus waitFence(Fence* fence, uint64_t timeout) noexcept override;
+    int getOSVersion() const noexcept final;
 
-    void createExternalImageTexture(void* texture) noexcept override;
-    void destroyExternalImage(void* texture) noexcept override;
-
-    /* default no-op implementations... */
-
-    [[nodiscard]] int getOSVersion() const noexcept override { return 0; }
-
-    void setPresentationTime(int64_t presentationTimeInNanosecond) noexcept override {}
-
-    Stream* createStream(void* nativeStream) noexcept override { return nullptr; }
-    void destroyStream(Stream* stream) noexcept override {}
-    void attach(Stream* stream, intptr_t tname) noexcept override {}
-    void detach(Stream* stream) noexcept override {}
-    void updateTexImage(Stream* stream, int64_t* timestamp) noexcept override {}
-
-    ExternalTexture* createExternalTextureStorage() noexcept override { return nullptr; }
-    void reallocateExternalStorage(ExternalTexture* ets,
-            uint32_t w, uint32_t h, backend::TextureFormat format) noexcept override {}
-    void destroyExternalTextureStorage(ExternalTexture* ets) noexcept override {}
-
-protected:
-    static void logEglError(const char* name) noexcept;
-
-    EGLBoolean makeCurrent(EGLSurface drawSurface, EGLSurface readSurface) noexcept;
-    void initializeGlExtensions() noexcept;
-
-    EGLDisplay mEGLDisplay = EGL_NO_DISPLAY;
-    EGLContext mEGLContext = EGL_NO_CONTEXT;
-    EGLSurface mCurrentDrawSurface = EGL_NO_SURFACE;
-    EGLSurface mCurrentReadSurface = EGL_NO_SURFACE;
-    EGLSurface mEGLDummySurface = EGL_NO_SURFACE;
-    EGLConfig mEGLConfig = EGL_NO_CONFIG_KHR;
-    EGLConfig mEGLTransparentConfig = EGL_NO_CONFIG_KHR;
-
-    EGLSurface mEGLSurface = EGL_NO_SURFACE;
-
-    // supported extensions detected at runtime
-    struct {
-        bool OES_EGL_image_external_essl3 = false;
-    } ext;
+private:
+    int mOSVersion;
 };
 
 } // namespace filament

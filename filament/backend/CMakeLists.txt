@@ -99,7 +99,9 @@ if (FILAMENT_SUPPORTS_OPENGL AND NOT FILAMENT_USE_EXTERNAL_GLES3 AND NOT FILAMEN
         list(APPEND SRCS src/opengl/platforms/PlatformWebGL.cpp)
     elseif (LINUX)
         if (FILAMENT_SUPPORTS_WAYLAND)
-            list(APPEND SRCS src/opengl/platforms/PlatformEGLWayland.cpp)
+            list(APPEND SRCS
+                    src/opengl/platforms/PlatformEGL.cpp
+                    src/opengl/platforms/PlatformEGLWayland.cpp)
         elseif (FILAMENT_SUPPORTS_X11)
             list(APPEND SRCS src/opengl/platforms/PlatformGLX.cpp)
         endif()
